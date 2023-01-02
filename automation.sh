@@ -28,5 +28,17 @@ s3_bucket='upgrad-prashant'
 tar -cvf /tmp/${myname}-httpd-logs-${timestamp}.tar /var/log/apache2/*.log
 aws s3 cp /tmp/${myname}-httpd-logs-${timestamp}.tar s3://${s3_bucket}/${myname}-httpd-logs-${timestamp}.tar
 
+size=$(ls -lh /tmp/${myname}-httpd-logs-${timestamp}.tar | awk '{print $5}')
+if [ -f "/var/www/html/inventory.html" ]; then
+	echo "httpd-logs&nbsp;&nbsp;$timestamp&nbsp;tar&nbsp;&nbsp;$size<br />" >> /var/www/html/inventory.html
+else
+	echo "<b>Log&nbsp;Type&nbsp;&nbsp;&nbsp;Date&nbsp;Created&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Type&nbsp;&nbsp;Size</b> <br />" >> /var/www/html/inventory.html
+	echo "httpd-logs&nbsp;&nbsp;$timestamp&nbsp;tar&nbsp;&nbsp;$size<br / >" >> /var/www/html/inventory.html
+fi
 
-
+##Check if automation cron file exists in /etc/cron.d/ directory
+if [ -f "/etc/cron.d/automation" ]; then
+	echo "Automation Cron file present. No further action"
+else
+	echo "0 */24 * * * root /root/Automation_Project/automation.sh" > /etc/cron.d/automation
+fi
